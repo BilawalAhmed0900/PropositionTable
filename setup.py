@@ -16,7 +16,7 @@ setup(name='PropositionTable',
     packages=['proposition_table'],
     entry_points={
           'console_scripts': [
-              'propositiontable = proposition_table.proposition_table:main'
+              'proposition_table = proposition_table.proposition_table:main'
           ]
       },
 	)
