@@ -6,7 +6,7 @@ import re
 from win32api import GetSystemMetrics
 
 
-VERSION         = '0.0.3a'
+VERSION         = '0.0.3b'
 MAINPROG_TITLE  = 'Proposition Table v{}'.format(VERSION)
 MAINPROG_WIDTH  = GetSystemMetrics(0)
 MAINPROG_HEIGHT = GetSystemMetrics(1)
