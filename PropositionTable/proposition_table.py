@@ -231,11 +231,11 @@ def build_table(table_frame: tkinter.Frame, propositon_list: list, propositon_st
 	table.column("#0", minwidth=0, width=0)
 
 	for column_name in propositon_list:
-		table.column(column_name, minwidth=WIDTH_OF_PROPOSITION, width=WIDTH_OF_PROPOSITION)
+		table.column(column_name, minwidth=WIDTH_OF_PROPOSITION, width=WIDTH_OF_PROPOSITION, anchor='center')
 		table.heading(column_name, text=column_name)
 
 	width = MAINPROG_WIDTH - (WIDTH_OF_PROPOSITION*len(propositon_list)) - 20
-	table.column(propositon_string, minwidth=width, width=width)
+	table.column(propositon_string, minwidth=width, width=width, anchor='center')
 	table.heading(propositon_string, text=propositon_string)
 
 	formatted_proposition_string = ToBool(propositon_string).get_eval_string()
@@ -273,6 +273,7 @@ def add_widgets(main_frame: tkinter.Frame, usable_height: int) -> None:
 	proposition_text = tkinter.Label(main_frame, text='Proposition: ')
 	proposition_text.place(x=10, y=14)
 	proposition_edit = tkinter.Text(main_frame, height=1, font=('Helvetica', 18))
+	proposition_edit.focus()
 	proposition_edit.place(x=85, y=8, width=MAINPROG_WIDTH - 85 - 10)
 
 	# Size of buttons in pixels
