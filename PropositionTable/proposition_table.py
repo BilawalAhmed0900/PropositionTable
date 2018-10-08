@@ -3,13 +3,12 @@ import os
 import tkinter
 import tkinter.ttk
 import re
-from win32api import GetSystemMetrics
 
 
-VERSION         = '0.0.3b'
+VERSION         = '0.0.4rc1'
 MAINPROG_TITLE  = 'Proposition Table v{}'.format(VERSION)
-MAINPROG_WIDTH  = GetSystemMetrics(0)
-MAINPROG_HEIGHT = GetSystemMetrics(1)
+MAINPROG_WIDTH  = 840
+MAINPROG_HEIGHT = 480
 
 
 NOT_SYMBOL   = '¬'
@@ -330,16 +329,13 @@ def add_widgets(main_frame: tkinter.Frame, usable_height: int) -> None:
 def main() -> None:
 	root = tkinter.Tk()
 	root.title(MAINPROG_TITLE)
-	root.state('zoomed')
+	root.resizable(0,0)
 	root.update()
-
-	# Size minus taskbar size etc
-	usable_height = root.winfo_height()
 
 	main_frame = tkinter.Frame(root, width=MAINPROG_WIDTH, height=MAINPROG_HEIGHT)
 	main_frame.pack()
 
-	add_widgets(main_frame, usable_height)
+	add_widgets(main_frame, MAINPROG_HEIGHT)
 
 	root.mainloop()
 
