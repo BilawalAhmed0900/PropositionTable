@@ -5,7 +5,7 @@ import tkinter.ttk
 import re
 
 
-VERSION         = '0.0.4rc1'
+VERSION         = '0.0.4rc2'
 MAINPROG_TITLE  = 'Proposition Table v{}'.format(VERSION)
 MAINPROG_WIDTH  = 840
 MAINPROG_HEIGHT = 480
@@ -114,7 +114,7 @@ class ToBool:
 		"""
 			Extract string enclosed in a bracket, replacing previous with placeholder
 		"""
-		return_list = []
+		intermediate_list = []
 		loop_string = string
 		last_bracket_starts, last_bracket_ends = self.get_brackets_position(string)
 		simple_brackets = self.extract_bracket(string)
@@ -125,12 +125,39 @@ class ToBool:
 				stop_index = last_bracket_ends.pop()
 
 				loop_string = simple_brackets[index + 1].replace(simple_brackets[index], '\\{}'.format(index))
-				return_list.append(loop_string)
+				intermediate_list.append(loop_string)
 
-		if len(return_list) > 0:
-			return simple_brackets, return_list
+		if len(intermediate_list) > 0:
+			r_l = intermediate_list
 		else:
-			return simple_brackets, simple_brackets
+			r_l = simple_brackets
+
+		return_list = []
+		for index, proposition in enumerate(r_l):
+			len_loop_string = len(proposition)	
+			proposition = proposition
+			for i in [IMPLY_SYMBOL, BICON_SYMBOL, XOR_SYMBOL]:
+				if i == IMPLY_SYMBOL:
+					repl = r'(not (\1) or (\2))'
+					upper_precedence_symbols = AND_SYMBOL + OR_SYMBOL + NOT_SYMBOL + IMPLY_SYMBOL
+				elif i == BICON_SYMBOL:
+					repl = r'(\1) == (\2)'
+					upper_precedence_symbols = AND_SYMBOL + OR_SYMBOL + NOT_SYMBOL + IMPLY_SYMBOL + BICON_SYMBOL
+				elif i == XOR_SYMBOL:
+					repl = r'(\1) != (\2)'
+					upper_precedence_symbols = AND_SYMBOL + OR_SYMBOL + NOT_SYMBOL +  IMPLY_SYMBOL + BICON_SYMBOL + XOR_SYMBOL
+				while True:
+					new_proposition = re.sub(r'([a-zA-Z0-9\ \\\(\){}]+)\s*{}\s*([a-zA-Z0-9\ \\\(\){}]+)'.format(upper_precedence_symbols, i, upper_precedence_symbols), 
+						repl, proposition, 1)
+					if new_proposition == proposition:
+						break
+					proposition = new_proposition
+
+			proposition = proposition
+			return_list.append(proposition)
+
+		return simple_brackets, return_list
+			
 
 
 	def format_for_eval(self, list_proposition):
@@ -143,19 +170,6 @@ class ToBool:
 			proposition = proposition.replace(NOT_SYMBOL, ' not ')
 			proposition = proposition.replace(AND_SYMBOL, ' and ')
 			proposition = proposition.replace(OR_SYMBOL,  ' or ' )
-			
-			for i in [IMPLY_SYMBOL, BICON_SYMBOL, XOR_SYMBOL]:
-				if i == IMPLY_SYMBOL:
-					repl = r'(not (\1) or (\2))'
-				elif i == BICON_SYMBOL:
-					repl = r'(\1) == (\2)'
-				elif i == XOR_SYMBOL:
-					repl = r'(\1) != (\2)'
-				while True:
-					new_proposition = re.sub(r'([a-zA-Z0-9\ \\\(\)]+)\s*{}\s*([a-zA-Z0-9\ \\\(\)]+)'.format(i), repl, proposition, 1)
-					if new_proposition == proposition:
-						break
-					proposition = new_proposition
 
 			return_list.append(proposition)
 
@@ -229,6 +243,9 @@ def build_table(table_frame: tkinter.Frame, propositon_list: list, propositon_st
 	table = tkinter.ttk.Treeview(table_frame, column=column_name_list)
 	table.column("#0", minwidth=0, width=0)
 
+	scrollbar = tkinter.ttk.Scrollbar(table_frame, orient="vertical", command=table.yview)
+	table.configure(yscrollcommand=scrollbar.set)
+
 	for column_name in propositon_list:
 		table.column(column_name, minwidth=WIDTH_OF_PROPOSITION, width=WIDTH_OF_PROPOSITION, anchor='center')
 		table.heading(column_name, text=column_name)
@@ -265,7 +282,9 @@ def build_table(table_frame: tkinter.Frame, propositon_list: list, propositon_st
 		this_vals.append(eval(this_proposition_string))
 		table.insert('', 'end', text='', value=this_vals)
 
-	table.pack(expand=True, fill='both')
+	scrollbar.pack(side="right", fill="y")
+	table.pack(side="left", expand=True, fill='both')
+	
 
 
 def add_widgets(main_frame: tkinter.Frame, usable_height: int) -> None:
